@@ -44,3 +44,20 @@ locus <- function(gen) {
     p < max_missing_loci
   })
 }
+
+#vector with loci non in hw equilibrium
+nonhw <- function(gen = NULL, p = 0.01){
+  #genotypes is a data frame with genotypes and pvalue the threshold for the hw test
+  gen[, !monomorphic(gen)] %>%
+  {adegenet::df2genind(.,
+                       ncode = 2,
+                       ind.names = row.names(.),
+                       loc.names = names(.),
+                       sep = "",
+                       NA.char = "0",
+                       ploidy = 2,
+                       type = "codom")} %>%
+  pegas::hw.test() %>%
+  {rownames(.)[.[, 4] < p]}
+}
+

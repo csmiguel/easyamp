@@ -22,6 +22,11 @@ unscored_loci <- unscored(genotypes)
   #   apply filter
   genotypes <- genotypes[, !unscored_loci]
 
+#filter out list of individuals
+  if (is.character(ind_to_remove)){
+    genotypes <- genotypes[!(rownames(genotypes) %in% ind_to_remove), ]
+  }
+  
 #filter out individuals according to their missing data
 ind_miss <- ind(genotypes)
   # apply filter
@@ -34,17 +39,25 @@ locus_miss <- locus(genotypes)
   genotypes <-
     genotypes[, locus_miss]
 
+  
 #remove monorphic loci (applied the latest)
-if (remove_monomorphic == "yes") {
-  monomorphic_loci <- monomorphic(genotypes)
-  # apply filter
-  genotypes <- genotypes[, !monomorphic_loci]
-}
+monomorphic_loci <- monomorphic(genotypes)
+# apply filter
+genotypes <- genotypes[, !monomorphic_loci]
+
+#filter out loci non in HW equilibrium
+hw_rm <- nonhw(genotypes, pvalue_hw)
+# apply filter
+genotypes <-
+  genotypes[, names(genotypes) %in% hw_rm]
 
 #create report
 sink("output/population-filtering.log")
   cat("input file has", nrow(init_gen), "individuals and ",
       ncol(init_gen), "loci\n")
+  cat(ifelse(all(!unscored_loci), "0",
+             paste(names(unscored_loci)[unscored_loci], collapse = " ")),
+      "has/have not been genotyped and has been removed", "\n")
   cat(ifelse(all(ind_miss), "0",
            paste(names(ind_miss)[!ind_miss], collapse = " ")),
     "samples has/have missing data above threshold",
@@ -56,9 +69,8 @@ sink("output/population-filtering.log")
   cat(ifelse(all(!monomorphic_loci), "0",
              paste(names(monomorphic_loci)[monomorphic_loci], collapse = " ")),
       "loci is/are monomorphic and have been removed", "\n")
-  cat(ifelse(all(!unscored_loci), "0",
-             paste(names(unscored_loci)[unscored_loci], collapse = " ")),
-      "loci has/have not been successfully genotyped in any individual and have been removed", "\n")
+  cat(paste(hw_rm, collapse = " "),
+      "has/have been remved because it/they was/were not in HW equilibrium at p =", pvalue_hw,"\n")
   cat("output file has", nrow(genotypes), "individuals and ",
       ncol(genotypes), "loci", "\n")
 sink()

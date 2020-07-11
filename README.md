@@ -25,7 +25,7 @@ You should have installed and added to the $PATH the following programs (also av
 [cutadapt](https://cutadapt.readthedocs.io/en/stable/installation.html) version 2.1 or above
 mmv (MAC `brew install mmv`; LINUX `sudo apt-get install mmv')
 
-The scripts are dependent on the following R packages with their dependencies: `dada2 seqinr dplyr assertthat adegenet tibble reshape2 xlsx plyr hierfstat tidyr magrittr`.
+The scripts are dependent on the following R packages with their dependencies: `dada2 seqinr dplyr assertthat adegenet tibble reshape2 xlsx plyr hierfstat tidyr magrittr pegas`.
 For more info see [R Session Info](`etc/sessionInfo.txt`)
 
 Raw sequences consist of demultiplexed reads (one file per sample). Move your R1 and R2 reads to `data/raw`.
@@ -61,7 +61,7 @@ It creates:
 
 YOU CAN STOP HERE. However, if you have populational data you might want to run scripts below to filter genotypes given their missing data and write output for STRUCTURE 
 
-`src/3-filtering.R` applies filters to the genotypes. It drops individuals or loci with missing data above/below thresholds in `src/parameters/parameters.r`. It removes monomorphic loci. Edit filtering thresholds in `src/parameters/parameters.r`.
+`src/3-filtering.R` applies filters to the genotypes. It drops individuals or loci with missing data above/below thresholds in `src/parameters/parameters.r`. It removes monomorphic loci and loci not in HWE. Edit filtering thresholds in `src/parameters/parameters.r`.
 A report of the filtering is created in `output/population-filtering.log`.
 
 `src/4-reformat.R` reformats population genetics data. It requires running `src/3-filtering.R`. It generates:
