@@ -1,0 +1,69 @@
+
+<!-- saved from url=(0061)file:///Users/miguelcamacho/Downloads/markdowntohtml.com.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><style>body {
+   color: black;
+}
+</style></head><body><h1 id="multilocus-genotyping-from-amplicon-sequencing">Multilocus genotyping from amplicon sequencing</h1>
+<p>The goal of this repository is to provide an easy tool to genotype loci from amplicon sequencing coming from High-Throughput Sequencing (HTS), such as from Illumina MiSeq.</p>
+<ul>
+<li>Input: amplicon reads from HTS demultiplexed by sample. Loci primer sequences.</li>
+<li>Output: individual x loci genotype matrix, plus alleles in FASTA.</li>
+</ul>
+<p>It provides a modular and customizable workflow. The core of the genotyping module relies on dada2, an R package designed for determining Amplicon Sequence Variants (ASVs) in metabarcoding.</p>
+<h2 id="what-it-does-">what it does:</h2>
+<ul>
+<li>it genotypes amplicon reads from diploid data.</li>
+<li>it takes as input overlapping and non-overlapping reads.</li>
+<li>it can genotype simultaneously samples from the same or different species.</li>
+<li>various output format: STRUCTURE, genotype table and FASTA.</li>
+</ul>
+<h2 id="what-it-does-not-do-">what it does <strong>not</strong> do:</h2>
+<ul>
+<li>current version only works with <strong>paired-end</strong> reads.</li>
+<li>not for shotgun data.</li>
+<li>current version only works on <strong>diploid</strong> and in single-copy genes.</li>
+<li>do not use for genotyping gene families (eg MHC)</li>
+<li>most time consuming processes run in parallele, but others do not.</li>
+</ul>
+<h2 id="set-up">set up</h2>
+<p>Clone the current repository.
+You should have installed and added to the $PATH the following programs (also available in the <code>src</code> folder):
+<a href="https://cutadapt.readthedocs.io/en/stable/installation.html">cutadapt</a> version 2.1 or above
+mmv (MAC <code>brew install mmv</code>; LINUX `sudo apt-get install mmv')</p>
+<p>The scripts are dependent on the following R packages with their dependencies: <code>dada2 seqinr dplyr assertthat adegenet tibble reshape2 xlsx plyr hierfstat tidyr magrittr</code>.
+For more info see <a href="file:///Users/miguelcamacho/Downloads/%60etc/sessionInfo.txt%60">R Session Info</a></p>
+<p>Raw sequences consist of demultiplexed reads (one file per sample). Move your R1 and R2 reads to <code>data/raw</code>.
+Provide information on primers and loci in the Excel file <code>data/raw/data.xls</code>, or in the as plain text in <code>data/raw/data</code>. Formatting instructions are written within each file.</p>
+<p>All names of fastq files used should meet a given format. Please, follow instructions and edit the file <code>data/raw/id-match</code>. This file will be used to bulk rename all fastq files to meet the required formatting using <code>mmv</code>.</p>
+<h2 id="repository-structure">repository structure</h2>
+<p><code>src</code> contains scripts and source files.
+<code>output</code>is an empty folder where the output of the scripts will be saved.
+<code>data/intermediate</code> is an empty folder where intermediate files are stored.
+<code>data/raw</code> is where raw sequences and templates are stored.</p>
+<h2 id="running-the-scripts">running the scripts</h2>
+<p>Scripts should be run in order from 0 (<code>src/0-checks.R</code>)to 5 (<code>code/05-fasfda.R</code>) in the Terminal/Console, or inside R if applies, using relative paths.</p>
+<p><code>src/0-checks.R</code> confirms you have all the installed dependencies and creates input files with primers for cutadapt.</p>
+<p><code>src/1-trim-reads.sh</code> remanes fastq to meet input format and runs cutadapt. It demultiplexes loci from R1 and R2 files into separate fastq files in <code>data/intermediate</code>. Log from cutadapt can be found in <code>output/cutadapt.txt</code>.</p>
+<p><code>src/2-genotyping.R</code> does the genotyping for each locus across all samples. Reads with ambiguities are removed. If reads do not overlap (i.e. the amplicon is longer than  ~R1 + R2), then they are merged by adding 10 N in between R1 and R2 reads. Final genotype calls are given using thresholds on minimium coverage and allele balance <code>src/parameters/parameters.r</code>.
+heterozygous (AB): two alleles found passing tresholds in <code>src/parameters/parameters.r</code>.
+homozygous (AA): one allele found. The read count for that allele minus the <code>cov</code> threshold in <code>src/parameters/parameters.r</code> is above 5.
+hemizygous (A-): one allele found. The read count for that allele minus the <code>cov</code> threshold in <code>src/parameters/parameters.r</code> is below 5.</p>
+<p>It creates:</p>
+<ul>
+<li><code>output/alleles.fasta</code> fasta with all different alleles.</li>
+<li><code>output/allele-freqs.txt</code> table with samples, loci and read count for each allele.</li>
+<li><code>output/individuals-x-alleles.fasta</code> fasta with all alleles per individual.</li>
+<li><code>output/genotypes.tsv</code> with genotypes as a table.</li>
+</ul>
+<p>YOU CAN STOP HERE. However, if you have populational data you might want to run scripts below to filter genotypes given their missing data and write output for STRUCTURE </p>
+<p><code>src/3-filtering.R</code> applies filters to the genotypes. It drops individuals or loci with missing data above/below thresholds in <code>src/parameters/parameters.r</code>. It removes monomorphic loci. Edit filtering thresholds in <code>src/parameters/parameters.r</code>.
+A report of the filtering is created in <code>output/population-filtering.log</code>.</p>
+<p><code>src/4-reformat.R</code> reformats population genetics data. It requires running <code>src/3-filtering.R</code>. It generates:</p>
+<ul>
+<li><code>output/filtered-genotypes.tsv</code>, a table with the genotypes.</li>
+<li><code>output/structure.str</code>, input genotypes for STRUCTURE.</li>
+<li><code>output/genind.rds</code>, genotypes as a <code>genind</code> object.</li>
+</ul>
+<h2 id="some-notes">some notes</h2>
+<p>At any time,  you can delete intermediate results <code>rm -rf data/intermediate</code> and output <code>rm -rf output</code>, to re-do analysis from raw data.</p>
+</body></html>
