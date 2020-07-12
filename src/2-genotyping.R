@@ -177,23 +177,23 @@ al_seqs <-
 #write alleles to fasta
 seqinr::write.fasta(sequences = as.list(al_seqs$sequence),
             names = paste(al_seqs$locus, al_seqs$allele, sep = "_"),
-            file.out = "output/alleles.fasta")
+            file.out = "output/output3-alleles.fasta")
 
 #write multifasta: all alleles for all individuals
 tidy_genotype_frqs %>%
   dplyr::left_join(al_seqs, by = c("locus" = "locus", "allele" = "allele")) %>%
   {seqinr::write.fasta(sequences = as.list(.$sequence),
                     names = paste(.$sample, .$locus, .$allele, sep = "_"),
-                    file.out = "output/individuals-x-alleles.fasta")}
+                    file.out = "output/output4-individuals-x-alleles.fasta")}
 
 #write allele frequencies
 write.table(tidy_genotype_frqs,
-            file = "output/allele-freqs.txt",
+            file = "output/output2-allele-freqs.txt",
             quote = F,
             row.names = F)
 
 #write genotype table
-write.table(genotypes, file = "output/genotypes.tsv", quote = F)
+write.table(genotypes, file = "output/output1-genotypes.tsv", quote = F)
 
 #save objects
 saveRDS(genotypes, file = "data/intermediate/genotypes.rds")

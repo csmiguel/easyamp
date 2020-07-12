@@ -23,8 +23,7 @@ genotypes <-
 }) %>% t()
 
 #1. convert to genind object
-if (ade_genind == "yes") {
-  gen_ad <- adegenet::df2genind(
+gen_ad <- adegenet::df2genind(
             genotypes,
             ncode = 2,
             ind.names = row.names(genotypes),
@@ -33,28 +32,25 @@ if (ade_genind == "yes") {
             NA.char = "0",
             ploidy = 2,
             type = "codom")
-  saveRDS(gen_ad, "output/genind.rds")
-}
+saveRDS(gen_ad, "output/output7-genind.rds")
 
 #2. export in STRUCTURE format
 # create a second gen_ad object
-if (structure_str == "yes") {
-  gen_ad2 <- gen_ad
+gen_ad2 <- gen_ad
   # hierfstat requires names of alleles to be be integers:
-  gen_ad2@all.names %<>%
-    sapply(function(x) {
-      plyr::mapvalues(
-        x,
-        letters,
-        1:length(letters))
-    })
-  # export in STRUCTURE format
-  hierfstat::genind2hierfstat(gen_ad2,
-                              pop = adegenet::indNames(gen_ad2)) %>%
-    hierfstat::write.struct(fname = "output/temp")
-  # replace loci with only one allele genotyped with missing data
-system("cat output/temp | sed 's/ 0 / -9 /g' > output/genotypes.str; rm output/temp")
-}
+gen_ad2@all.names %<>%
+  sapply(function(x) {
+    plyr::mapvalues(
+      x,
+      letters,
+      1:length(letters))
+  })
+# export in STRUCTURE format
+hierfstat::genind2hierfstat(gen_ad2,
+                            pop = adegenet::indNames(gen_ad2)) %>%
+  hierfstat::write.struct(fname = "output/temp")
+# replace loci with only one allele genotyped with missing data
+system("cat output/temp | sed 's/ 0 / -9 /g' > output/output6-genotypes.str; rm output/temp")
 
 #3. write to table
-write.table(genotypes, file = "output/filtered-genotypes.tsv", quote = F)
+write.table(genotypes, file = "output/output5-filtered-genotypes.tsv", quote = F)

@@ -49,7 +49,7 @@ genotypes <- genotypes[, !monomorphic_loci]
 hw_rm <- nonhw(genotypes, pvalue_hw)
 # apply filter
 genotypes <-
-  genotypes[, names(genotypes) %in% hw_rm]
+  genotypes[, !(names(genotypes) %in% hw_rm)]
 
 #create report
 sink("output/population-filtering.log")
