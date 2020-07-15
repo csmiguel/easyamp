@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/279770729.svg)](https://zenodo.org/badge/latestdoi/279770729)
+[![DOI](https://zenodo.org/badge/279770729.svg)](https://zenodo.org/record/3945855)
 # EasyAmp: a simple pipeline to genotype multilocus amplicon data from High Throughput Sequencing
 The goal of this repository is to provide an easy tool to genotype loci from amplicon sequencing coming from High-Throughput Sequencing (HTS), such as from Illumina MiSeq.
 * input: R1 and R1 amplicon reads from HTS demultiplexed by sample + primer sequences.
