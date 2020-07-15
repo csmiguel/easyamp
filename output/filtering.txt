@@ -1,6 +1,0 @@
-input file has 19 individuals and  30 loci
-0 samples has/have missing data above threshold 0.3 
-0 loci has/have missing data above threshold 0.3 
-CHRNA9 Klc2 Fancg loci is/are monomorphic and have been removed 
-APEH14 SFRS5 GABRP loci has/have not been successfully genotyped in any individual and have been removed 
-output file has 19 individuals and  24 loci 
