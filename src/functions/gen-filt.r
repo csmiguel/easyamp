@@ -60,4 +60,3 @@ nonhw <- function(gen = NULL, p = 0.01){
   pegas::hw.test() %>%
   {rownames(.)[.[, 4] < p]}
 }
-

@@ -7,64 +7,79 @@
 #GOAL: run checks on files necessary and create files
 #PROJECT: amplicon-genotyping
 ###.............................................................................
-library(asserthat)
+library(assertthat)
 library(dplyr)
 
-#are all necessary packages installed?
+# 1. install all necessary packages
 h <- installed.packages()
-assertthat::assert_that(
-  !(match(
-    c("dada2", "seqinr", "dplyr", "assertthat", "adegenet", "tibble", "reshape2", "xlsx", "plyr", "hierfstat"), h[, 1], nomatch = NA) %>%
-    sum() %>% is.na()),
-  msg = "you need to install all necessary R packages"
-)
-#1. PRIMERS: checks on input data and create fasta for forward and reverse primers
+pkg_needed <-
+  c("dada2", "seqinr", "dplyr", "assertthat", "adegenet", "tibble",
+    "reshape2", "xlsx", "plyr", "hierfstat", "kmer", "ape", "magrittr")
+new_packages <- pkg_needed[!(pkg_needed %in% h[, "Package"])]
+if (length(new_packages)) install.packages(new_packages)
+h <- installed.packages()
+
+# 2. check there is a file with primers
 #read data
-path_txt <- "data/raw/data"
-path_excel <- "data/raw/data.xls"
-if (file.exists(path_txt)) {
-  data <- read.csv(path_txt)
-  } else if (file.exists(path_excel)) {
-  data <- xlsx::read.xlsx(path_excel, 1)
+path_csv <- "data/raw/primers.csv"
+
+if (file.exists(path_csv)) {
+  primers <- read.csv(path_csv, sep = ";")
   } else {
-  warning("data/raw/data or data/raw/data.xls not found. Provide primer sequences and loci names in those files")
+  warning("Provide data/raw/primers.csv sequences and loci names in those files")
   }
 
-#assert data format looks ok
+assertthat::assert_that(nrow(primers) > 0,
+  msg = "fill data/raw/primers.csv with primer sequences and name of loci")
 assertthat::assert_that(
-  !is.null(data) & apply(data, 2, length) %>%
+  !is.null(primers) & apply(primers, 2, length) %>%
                     unique() %>%
                     length() == 1,
-                    msg = paste("check", path_txt, "or", path_excel))
-
-#create fasta file with forward primers
-data %>%
+                    msg = paste("check", path_csv))
+# 3. create fasta files with primers
+# forward
+primers %>%
   dplyr::select(1) %>%
   dplyr::pull() %>%
   lapply(function(x) x) %>%
-  seqinr::write.fasta(names = data[, 3], file.out = "data/intermediate/forward")
-#create fasta file with forward primers
-data %>%
+  seqinr::write.fasta(names = primers[, 3], file.out = "data/intermediate/forward")
+# reverse
+primers %>%
   dplyr::select(2) %>%
   dplyr::pull() %>%
   lapply(function(x) x) %>%
-  seqinr::write.fasta(names = data[, 3], file.out = "data/intermediate/reverse")
-#create text file with names of loci
-write(data$locus, file = "data/intermediate/loci")
+  seqinr::write.fasta(names = primers[, 3], file.out = "data/intermediate/reverse")
 
-#2. raw sequences
+#create text file with names of loci
+write(as.character(primers$locus), file = "data/intermediate/loci")
+
+#4. raw sequences
 #raw sequences should be placed in data/raw/ and be in fastq format
 #compression is optional
 #fill in the file raw/data/id-match
-# are there any fastq files present in data/raw?
+# have fastq files been placed in data/raw?
 
 assertthat::assert_that(dir("data/raw", "fastq") %>% length() > 1,
         msg = "no fastq files found on data/raw")
 
 #has raw/data/id-match be filled?
-
 assertthat::assert_that(
-  readLines("data/raw/id-match") %>%
+  readLines("data/raw/id-match.txt") %>%
       grep(pattern = "^data/raw") %>%
       length() > 0,
-  msg =  "nothing to rename found on data/raw/id-match")
+    msg =  "nothing to rename found on data/raw/id-match")
+
+#log
+hh <- pkg_needed[!(pkg_needed %in% h)]
+logs <- "output/log.txt"
+if (!file.exists(logs)) file.create(logs)
+sink(logs)
+cat(
+  as.character(Sys.time()),
+  "\nLOG on src/0-checks.R\n",
+  paste(if (length(hh) == 0) "No" else hh,
+   "package(s) need to be installed manually\n"),
+   "data/raw/primers.csv exists and seems to have data formatted correctly\n",
+   "fastq files seem to be present in data/raw\n",
+   "fastq files seem to have a file data/raw/id-match.txt for renaming\n")
+sink()

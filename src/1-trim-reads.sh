@@ -1,3 +1,4 @@
+#!/bin/bash
 ###.............................................................................
 # (c) Miguel Camacho Sánchez
 # miguelcamachosanchez@gmail.com // miguelcamachosanchez.weebly.com
@@ -8,7 +9,10 @@
 #PROJECT: amplicon-genotyping
 ###.............................................................................
 #batch renaming after patterns in data/raw/id-match
-mmv < data/raw/id-match
+mmv < data/raw/id-match.txt
+
+#compress if not compressed
+find data/raw/*fastq* -type f ! -iname '*fastq.gz' -exec gzip '{}' \;
 
 #write list of samples
 ls data/raw/*fastq* | sed -e 's|.[12].fastq.gz||;s|data/raw/||' | sort | uniq -c \
@@ -22,12 +26,12 @@ do
       -e 0.15 --no-indels \
       --discard-untrimmed \
       --pair-adapters \
-      -q 10 \
-      -m 150 \
+      -q 5 \
+      --overlap 15 \
       -g file:data/intermediate/forward \
       -G file:data/intermediate/reverse \
       -o data/intermediate/$sample.{name}.1.fastq.gz \
       -p data/intermediate/$sample.{name}.2.fastq.gz \
       data/raw/$sample.1.fastq.gz \
       data/raw/$sample.2.fastq.gz
-done > output/cutadapt.txt
+done > output/log-cutadapt.txt
