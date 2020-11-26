@@ -14,7 +14,8 @@ library(dplyr)
 h <- installed.packages()
 pkg_needed <-
   c("dada2", "seqinr", "dplyr", "assertthat", "adegenet", "tibble",
-    "reshape2", "xlsx", "plyr", "hierfstat", "kmer", "ape", "magrittr")
+    "reshape2", "xlsx", "plyr", "hierfstat", "kmer", "ape", "magrittr",
+  "ggplot2", "gridExtra")
 new_packages <- pkg_needed[!(pkg_needed %in% h[, "Package"])]
 if (length(new_packages)) install.packages(new_packages)
 h <- installed.packages()

@@ -20,13 +20,14 @@ ls data/raw/*fastq* | sed -e 's|.[12].fastq.gz||;s|data/raw/||' | sort | uniq -c
 
 #dual demultiplexing of reads.
 #dual demultiplexing is only enabled from cutadapt v2.1
+#no quality trimming needed: truncation is performed later.
+#for parallel processing: https://cutadapt.readthedocs.io/en/stable/guide.html
 cat data/intermediate/samples-list | while read sample
 do
   cutadapt \
       -e 0.15 --no-indels \
       --discard-untrimmed \
       --pair-adapters \
-      -q 5 \
       --overlap 15 \
       -g file:data/intermediate/forward \
       -G file:data/intermediate/reverse \
