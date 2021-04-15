@@ -14,7 +14,7 @@ library(dplyr)
 h <- installed.packages()
 pkg_needed <-
   c("dada2", "seqinr", "dplyr", "assertthat", "adegenet", "tibble",
-    "reshape2", "xlsx", "plyr", "hierfstat", "kmer", "ape", "magrittr",
+    "reshape2", "plyr", "hierfstat", "kmer", "ape", "magrittr",
   "ggplot2", "gridExtra")
 new_packages <- pkg_needed[!(pkg_needed %in% h[, "Package"])]
 if (length(new_packages)) install.packages(new_packages)
@@ -25,7 +25,7 @@ h <- installed.packages()
 path_csv <- "data/raw/primers.csv"
 
 if (file.exists(path_csv)) {
-  primers <- read.csv(path_csv, sep = ";")
+  primers <- read.csv(path_csv, sep = ",")
   } else {
   warning("Provide data/raw/primers.csv sequences and loci names in those files")
   }

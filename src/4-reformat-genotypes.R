@@ -13,6 +13,8 @@ library(dplyr)
 
 #read genotypes
 genotypes <- readRDS("data/intermediate/genotypes_notnull.rds")
+gen <- genotypes$asvs
+al <- genotypes$al_seq
 
 #read populations
 popfile <- "data/raw/pops"
@@ -29,15 +31,6 @@ get_ploidy <- function() {
   ploidy
 }
 ploidy <- get_ploidy()
-#bind genotype data
-gen <-
-  genotypes %>%
-  plyr::ldply(function(x) x$asvs, .id = NULL) %>% tibble::as_tibble()
-#bind allele data
-al <-
-  genotypes %>%
-  plyr::ldply(function(x) x$al_seq, .id = NULL) %>%
-  dplyr::rename(allele = name) %>% tibble::as_tibble()
 
 #output 1: table with genotypes
 #  |         | locus1 | locus2 |
@@ -125,3 +118,7 @@ gen %>%
     sequences = as.list(.$seq),
     names = .$fasta_name,
     file.out = "output/output4-alleles-sample.fasta")}
+
+#save
+saveRDS(hh, "data/intermediate/genotypes-genind.rds")
+saveRDS(gen_df, "data/intermediate/genotypes-hierfstat.rds")

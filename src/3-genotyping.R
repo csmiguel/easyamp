@@ -50,5 +50,17 @@ cat("\nLoci removed:")
 print(loci[!(loci %in% notnull_loci)])
 sink()
 
+#bind genotype data
+gen <-
+  genotypes_notnull %>%
+  plyr::ldply(function(x) x$asvs, .id = NULL) %>% tibble::as_tibble()
+#bind allele data
+al <-
+  genotypes_notnull %>%
+  plyr::ldply(function(x) x$al_seq, .id = NULL) %>%
+  dplyr::rename(allele = name) %>% tibble::as_tibble()
+# create list
+genotypes_notnull <- list(asvs = gen, al_seq = al)
+
 #save objects
 saveRDS(genotypes_notnull, file = "data/intermediate/genotypes_notnull.rds")

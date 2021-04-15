@@ -32,7 +32,7 @@ The scripts are dependent on the following R packages with their dependencies: `
 For more info see [R Session Info](`etc/R-session-info.txt`)
 
 Raw sequences consist of demultiplexed reads (one file per sample). Move your R1 and R2 reads to `data/raw`.
-Provide information on primers and loci in the Excel file `data/raw/data.xls`, or as plain text in `data/raw/data`. Formatting instructions are written within each file.
+Provide information on primers and loci as plain text in `data/raw/data`. Formatting instructions are written within each file.
 
 All names of FASTQ files used should meet a given format. Please, follow instructions and edit the file `data/raw/id-match`. This file will be used to bulk rename all FASTQ files to meet the required formatting using `mmv`.
 

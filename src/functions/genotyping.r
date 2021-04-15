@@ -47,7 +47,15 @@ genotype <- function(locus) {
 
 #determination of asvs using dada2:
 #importantly:
-# setting "pooled = T" in dada2::dada at the same time that having very little coverage with bad quality reads can lead to false genotype calls in indivuals with rare alleles. "pooled = T" is only recommended if read quality are high and coverage is high. Nevertheless, in some ocassion it could yield higher sentitivity for detecting rare alleles, if read quality is high. Else, it is recommended a more conservative approach and use "pooled = F". This option will return, NULL genotype calls for many individuals but more reliable genotypes for the positive calls. Parameters in cutadapt (-q) and dada2::dada (maxEE) can be tunned to expect higher quality reads.
+# setting "pooled = T" in dada2::dada at the same time that having very little
+# coverage with bad quality reads can lead to false genotype calls in indivuals
+# with rare alleles. "pooled = T" is only recommended if read quality are high
+# and coverage is high. Nevertheless, in some ocassion it could yield higher
+# sentitivity for detecting rare alleles, if read quality is high.
+# Else, it is recommended a more conservative approach and use "pooled = F".
+# This option will return, NULL genotype calls for many individuals but more
+# reliable genotypes for the positive calls. Parameters in cutadapt (-q)
+# and dada2::dada (maxEE) can be tunned to expect higher quality reads.
 
 # locus, locus name as in file with primers
 asv_determination_pe <- function(locus = NULL,
