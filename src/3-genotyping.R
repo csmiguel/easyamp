@@ -17,24 +17,17 @@ library(magrittr)
 source("src/parameters/parameters.r")
 #load function to cleas spurious ASVs
 source("src/functions/genotyping.r")
-
-#samples
-all_samples <- readLines("data/intermediate/samples-list")
 #loci
 loci <- readLines("data/intermediate/loci")
 #vector to name of alleles
 al_names_all <- as.character(101:999)
-#create path for filtered sequences downstream
-filt_path <- "data/intermediate/filtered"
-if (!file_test("-d", filt_path)) dir.create(filt_path)
-
 #log genotyping
 zz <- file("output/log.txt", open = "a")
 sink(zz, type = "output", append = T)
 sink(zz, type = "message", append = T)
 cat(
   as.character(Sys.time()),
-  "\nLOG on src/2-genotyping.R\n")
+  "\nLOG on 3-genotyping.R\n")
 
 #genotyping. See function details for further info.
 genotypes <-

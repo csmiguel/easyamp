@@ -26,15 +26,17 @@ It provides a modular and customizable workflow. The core of the genotyping modu
 Clone the current repository.
 You should have installed and added to the $PATH the following programs (also available in the `src` folder):
 [cutadapt](https://cutadapt.readthedocs.io/en/stable/installation.html) version 2.1 or above, and
-`mmv` (MAC `brew install mmv`; LINUX `sudo apt-get install mmv')
+`mmv` (MAC `brew install mmv`; LINUX `sudo apt-get install mmv`)
 
 The scripts are dependent on the following R packages with their dependencies: `dada2 seqinr dplyr assertthat adegenet tibble reshape2 xlsx plyr hierfstat tidyr magrittr pegas`.
 For more info see [R Session Info](`etc/R-session-info.txt`)
 
 Raw sequences consist of demultiplexed reads (one file per sample). Move your R1 and R2 reads to `data/raw`.
-Provide information on primers and loci as plain text in `data/raw/data`. Formatting instructions are written within each file.
+Provide information on primers and loci as plain text in `data/raw/primers.csv`. Formatting instructions are written within each file.
 
 All names of FASTQ files used should meet a given format. Please, follow instructions and edit the file `data/raw/id-match`. This file will be used to bulk rename all FASTQ files to meet the required formatting using `mmv`.
+
+The names of loci and samples **must** only contain alphanumeric characters.
 
 ## repository structure
 
@@ -49,10 +51,10 @@ Scripts should be run in order, starting from 0 (`src/0-checks.R`) in the Termin
 
 `src/0-checks.R` confirms you have all the installed dependencies and creates input files with primers for cutadapt.
 
-`src/1-trim-reads.sh` remanes FASTQ to meet input format and runs cutadapt. It demultiplexes loci from R1 and R2 files into separate FASTQ files in `data/intermediate`. Log from cutadapt can be found in `output/cutadapt.txt`.
+`src/1-trim-reads.sh` renames FASTQ to meet input format and runs cutadapt. It demultiplexes loci from R1 and R2 files into separate FASTQ files in `data/intermediate`. Log from cutadapt can be found in `output/cutadapt.txt`.
 
 `src/2-genotyping.R` does the genotyping for each locus across all samples. Reads with ambiguities are removed. If reads do not overlap (i.e. the amplicon is longer than  ~R1 + R2), then they are merged by adding 10 N in between R1 and R2 reads. Final genotype calls are given using thresholds on minimium coverage and allele balance `src/parameters/parameters.r`.
-heterozygous (AB): two alleles found passing tresholds in `src/parameters/parameters.r`.
+heterozygous (AB): two alleles found passing thresholds in `src/parameters/parameters.r`.
 homozygous (AA): one allele found. The read count for that allele minus the `cov` threshold in `src/parameters/parameters.r` is above 5.
 hemizygous (A-): one allele found. The read count for that allele minus the `cov` threshold in `src/parameters/parameters.r` is below 5.
 

@@ -12,6 +12,9 @@ library(dada2)
 library(dplyr)
 library(ShortRead)
 
+source("src/functions/remove_empty_fastq.r")
+
+remove_empty_fastq(path_fastq = "data/intermediate")
 #fastq file paths
 # foward
 fnFs <- sort(list.files(path = "data/intermediate",
@@ -20,33 +23,12 @@ fnFs <- sort(list.files(path = "data/intermediate",
 fnRs <- sort(list.files(path = "data/intermediate",
                         pattern = "2.fastq.gz", full.names = TRUE))
 
-#remove fastq files with no reads
-#therwise plotQualityProfile returns an error when reading empty files.
-# forward
-no_readsF <-
-  fnFs %>%
-    sapply(function(x){
-      ShortRead::readFastq(x) %>%
-        length()
-    }) %>%
-    {. == 0}
-file.remove(fnFs[no_readsF])
-# reverse
-no_readsR <-
-  fnRs %>%
-    sapply(function(x){
-      ShortRead::readFastq(x) %>%
-        length()
-    }) %>%
-    {. == 0}
-file.remove(fnRs[no_readsR])
-
 #quality plots
 # forward
-qualplt_f <- dada2::plotQualityProfile(sample(fnFs[!no_readsF], size = 30, replace = T),
+qualplt_f <- dada2::plotQualityProfile(sample(fnFs, size = 30, replace = T),
                                        n = 100, aggregate = T)
 # reverse
-qualplt_r <- dada2::plotQualityProfile(sample(fnRs[!no_readsR], size = 30, replace = T),
+qualplt_r <- dada2::plotQualityProfile(sample(fnRs, size = 30, replace = T),
                                        n = 100, aggregate = T)
 #add titles
 qualplt_f <-
